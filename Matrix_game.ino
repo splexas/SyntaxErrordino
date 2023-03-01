@@ -4,7 +4,6 @@ int CS = 7;
 int CLK = 13;
 int buttonPin = 5;   
 int lcnum = 0;
-//test
 
 LedControl lc=LedControl(DIN, CLK, CS,0);
 
@@ -17,7 +16,6 @@ void setup() {
   lc.setIntensity(1,0);
   lc.clearDisplay(0);
   lc.clearDisplay(1);
-
 }
 
 bool wasbreaked = false;
@@ -49,7 +47,6 @@ void store(int a, int b) {
     row = -3;
     col = 0;
     dly = 200;
-
   }
 
   if(col == 16) {
@@ -62,19 +59,24 @@ void store(int a, int b) {
 
 void loop() {
   byte buttonState = digitalRead(buttonPin);
+  
   for(row=0;row<9;row++){
     lc.setLed(lcnum,col, row-1,true);
     lc.setLed(lcnum,col, row,true);
-    delay(dly);
-    lc.setLed(lcnum,col, row-1,true);
+    
+    delay(dly);//sustabdo button laukima REIKIA FIX
+    
+    lc.setLed(lcnum,col, row-1,true);//KAM SITAS?
     lc.setLed(lcnum,col, row, true);
 
     lc.setLed(lcnum,col, row-1,false);
     lc.setLed(lcnum,col, row,false);
+    
     byte buttonState = digitalRead(buttonPin);
     if (buttonState == HIGH) {
       store(row, col);
     }
   }
 }
-// https://www.instructables.com/DOT-Matrix-8x8-Using-Arduino/
+//https://www.instructables.com/DOT-Matrix-8x8-Using-Arduino/
+//https://gist.github.com/activeiz/9634195
