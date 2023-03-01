@@ -4,6 +4,7 @@ int CS = 7;
 int CLK = 13;
 int buttonPin = 5;   
 int lcnum = 0;
+//test
 
 LedControl lc=LedControl(DIN, CLK, CS,0);
 
