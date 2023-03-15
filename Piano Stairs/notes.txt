@@ -1,0 +1,7 @@
+if(resist7 < startresist7 and pin7detected == 0){
+    Serial.println("7");
+    pin7detected = 1;
+}
+if(resist7 == startresist7){
+    pin7detected = 0;
+}
