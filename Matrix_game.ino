@@ -4,8 +4,8 @@
 //Game settings
 byte start_leds_quantity = 3;//recommended 3
 int startspeed = 220;//recommended 220
-byte speed_change_per_level = 10;//recommended 7-8 easy, 9-10 normal, 11-12 hard, 13+ imposible
-byte brightness = 1;//recommended 1 (0-15)
+byte speed_change_per_level = 8.5;//recommended 7-8 easy, 9-10 normal, 11-12 hard, 13+ imposible
+byte brightness = 4;//recommended 1 (0-15)
 
 
 #include <LedControl.h>
@@ -137,6 +137,7 @@ byte getledunder(byte rownum){//checks if led under current row is on
       return prevcol[i];
     }
   }
+  return 0;
 }
 void updateprevcol(byte suitablerow){//updates previous column state
   for (byte i = 0; i < 8; i++){
