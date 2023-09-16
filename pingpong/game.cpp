@@ -3,89 +3,113 @@
 
 Game::Game(LedControl* lcd) {
     this->lcd = lcd;
-
-    this->player_projectile = {0,0};
-
-    this->player_bases = new Base[2];
-    for (int i = 0; i < 2; i++) {
-        for (int a = 0; a < 2; a++) {
-            this->player_bases[i].platform[a][0] = 0;
-            this->player_bases[i].platform[a][1] = 0;
-        }
-
-    }
-    
 }
 
-Game::~Game() {
-    delete[] this->player_bases;
-}
+Game::~Game() {}
 
-Projectile* Game::get_projectile() {
+Coordinates* Game::get_projectile() {
     return &this->player_projectile;
 }
 
-Base* Game::get_base(unsigned int player_index) {
-    return &this->player_bases[player_index];
+Coordinates* Game::get_platform(unsigned int player_index) {
+    if (player_index == 0) {
+        return &this->player1_platform;
+    }
+
+    return &this->player2_platform;
 }
 
-void Game::set_projectile(Projectile* projectile) {
+void Game::set_projectile(Coordinates* projectile) {
     this->player_projectile = *projectile;
+    return;
 }
 
-void Game::set_base(Base* base, unsigned int player_index) {
-    memcpy(&this->player_bases[player_index], base, sizeof(Base));
-}
-
-Projectile* Game::make_projectile(Direction direction, Trajectory trajectory) {
-    if (direction == Direction::LEFT && this->player_projectile.x == 0) {
-        return nullptr;
+void Game::set_platform(Coordinates* platform, unsigned int player_index) {
+    if (player_index == 0) {
+        this->player1_platform = *platform;
+        return;
     }
 
-    // more here
+    this->player2_platform = *platform;
+    return;
 }
 
-Base* Game::make_base(unsigned int starting_point) {
-    // makes the base on the side
+Coordinates Game::make_projectile(Direction direction, Trajectory trajectory) {
+    Coordinates projectile;
 
-    if (starting_point % 2 == 0) {
-        return nullptr;
+    if (direction == Direction::LEFT) {
+        projectile.set_x(this->player_projectile.get_x() - 1);
+    } else if (direction == Direction::RIGHT) {
+        projectile.set_x(this->player_projectile.get_x() + 1);
     }
 
-    Base* base = new Base;
-    
-    base->platform[0][0] = 0;
-    base->platform[0][1] = starting_point - 1;
+    // if its center, dont do anything to y 
+    if (trajectory == Trajectory::DOWN) {
+        projectile.set_y(this->player_projectile.get_y() - 1);
+    } else if (trajectory == Trajectory::UP) {
+        projectile.set_y(this->player_projectile.get_y() + 1);
+    }
 
-    base->platform[1][0] = 0;
-    base->platform[1][1] = starting_point;
-
-    base->platform[2][0] = 0;
-    base->platform[2][1] = starting_point + 1;
-
-    return base;
+    return projectile;
 }
 
-bool Game::check_collision() {
-    for (int i = 0; i < 2; i++) {
-        for (int a = 0; a < 3; a++) {
-            if (this->player_bases[i].platform[a][0] == this->player_projectile.x || this->player_bases[i].platform[a][1] == this->player_projectile.y) {
-                return true;
-            }
-        }
+Coordinates Game::make_platform(unsigned int player_index, unsigned int starting_point) {
+    Coordinates platform;
+
+    int y = 0;
+    if (player_index == 1) {
+        y = 15; 
     }
 
-    return false;
+    platform.set_x(starting_point);
+    platform.set_y(y);
+
+    return platform;
+}
+
+int Game::check_collision() {
+    // the projectile isnt in line with any of the players' platforms
+    if (this->player1_platform.get_y() < this->player_projectile.get_y() && this->player2_platform.get_y() > this->player_projectile.get_y()) {
+        return -1;
+    }
+
+    if (this->player1_platform.get_x() - 1 <= this->player_projectile.get_x() && this->player1_platform.get_x() + 1 >= this->player_projectile.get_x()) {
+        return 0;
+    }
+
+    if (this->player2_platform.get_x() - 1 <= this->player_projectile.get_x() && this->player2_platform.get_x() + 1 >= this->player_projectile.get_x()) {
+        return 1;
+    }
+
+
+    return -1;
+}
+
+void Game::set_led(int x, int y) {
+    int device_index = 0;
+
+    if (y > 7) {
+        device_index = 1;
+        y -= 8;
+    }
+
+    this->lcd->setLed(device_index, y, x, true);
+    return;
 }
 
 void Game::render_scene() {
-    this->lcd->setLed(0, this->player_projectile.x, this->player_projectile.y, true);
+    // projectile
+    this->set_led(this->player_projectile.get_x(), this->player_projectile.get_y());
 
-    for (int i = 0; i < 3; i++) {
-        this->lcd->setLed(0, this->player_bases[0].platform[i][0], this->player_bases[0].platform[i][1], true);
-    }
+    // player1 platform
+    this->set_led(this->player1_platform.get_x() - 1, this->player1_platform.get_y());
+    this->set_led(this->player1_platform.get_x(), this->player1_platform.get_y());
+    this->set_led(this->player1_platform.get_x() + 1, this->player1_platform.get_y());
 
-    /*for (int i = 0; i < 2; i++) {
-        this->lcd->setLed(0, this->player_projectiles[i].x, this->player_projectiles[i].y, true);
-    }*/
+    // player2 platform
+    this->set_led(this->player2_platform.get_x() - 1, this->player2_platform.get_y());
+    this->set_led(this->player2_platform.get_x(), this->player2_platform.get_y());
+    this->set_led(this->player2_platform.get_x() + 1, this->player2_platform.get_y());
+
+    return;
 }

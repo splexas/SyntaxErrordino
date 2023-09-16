@@ -6,59 +6,25 @@
 #define CLOCK_PIN 8
 #define CHIP_SELECT_PIN 4
 
-LedControl lcd(DATA_PIN, CLOCK_PIN, CHIP_SELECT_PIN, 1);
+LedControl lcd(DATA_PIN, CLOCK_PIN, CHIP_SELECT_PIN, 2);
 Game game(&lcd);
 
 void setup() {
-    lcd.shutdown(0, false);
-    lcd.setIntensity(0, 15);
-    lcd.clearDisplay(0);
-
+    for (int i = 0; i < 2; i++) {
+        lcd.shutdown(i, false);
+        lcd.setIntensity(i, 15);
+        lcd.clearDisplay(i);
+    }
 }
 
 void loop() {
+    Coordinates p1_platform = game.make_platform(0, 1);
+    game.set_platform(&p1_platform, 0);
 
-    Base* base = game.make_base(5);
-    if (base == nullptr) {
-        return;
-    }
+    Coordinates p2_platform = game.make_platform(1, 2);
+    game.set_platform(&p2_platform, 1);
 
+    // shooting the projectile and bouncing it...
 
-    game.set_base(base, 0);
-    delete[] base;
     game.render_scene();
-    delay(150);
-    lcd.clearDisplay(0);
-
-    /*
-    // shoot
-    for (int i = 0; i < 8; i++) {
-        game.set_base(base, 0);
-        delete[] base;
-
-        Projectile projectile;
-        projectile.x = i;
-        projectile.y = i;
-        
-
-        game.set_projectile(&projectile, 0);
-        game.render_scene();
-        delay(150);
-        lcd.clearDisplay(0);
-    }
-
-    // reflect
-    for (int i = 8-1; i >= 0; i--) {
-        game.set_base(base, 0);
-        delete[] base;
-
-        Projectile projectile;
-        projectile.x = i;
-        projectile.y = i;
-
-        game.set_projectile(&projectile, 0);
-        game.render_scene();
-        delay(150);
-        lcd.clearDisplay(0);
-    }*/
 }

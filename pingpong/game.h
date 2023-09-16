@@ -2,49 +2,44 @@
 #define GAME_H
 
 #include "LedControl.h"
-
-struct Projectile {
-    int x, y;
-};
-
-struct Base {
-    int platform[3][2];
-};
+#include "utils.h"
 
 enum class Direction {
     LEFT,
-    RIGHT,
-    CENTER
+    RIGHT
 };
 
 enum class Trajectory {
     UP,
-    DOWN
+    DOWN,
+    CENTER
 };
 
 class Game {
 private:
     LedControl* lcd;
 
-    Projectile player_projectile; // will be used for both players
-    Base* player_bases;
+    Coordinates player_projectile; // will be used for both players
+    Coordinates player1_platform; // stores just the middle
+    Coordinates player2_platform; // stores just the middle
 
 public:
     Game(LedControl* lcd);
     ~Game();
 
-    Projectile* get_projectile();
-    Base* get_base(unsigned int player_index);
+    Coordinates* get_projectile();
+    Coordinates* get_platform(unsigned int player_index);
 
-    void set_projectile(Projectile* projectile);
-    void set_base(Base* base, unsigned int player_index);
+    void set_projectile(Coordinates* projectile);
+    void set_platform(Coordinates* platform, unsigned int player_index);
 
-    Projectile* make_projectile(Direction direction, Trajectory trajectory); // makes a new dynamic projectile object with next path coordinates
-    Base* make_base(unsigned int starting_point); // makes a platform on where the player is supposed to hit the projectile
+    Coordinates make_projectile(Direction direction, Trajectory trajectory); // makes a new dynamic projectile object with next path coordinates
+    Coordinates make_platform(unsigned int player_index, unsigned int starting_point); // makes a platform (it can make coordinates with negative values) on where the player is supposed to hit the projectile
     
-    bool check_collision(); // checks if the projectile has collided with any of the players' platforms
+    int check_collision(); // returns -1 if the projectile hasnt collided with anything, returns the player index otherwise.
 
-    void render_scene();
+    void set_led(int x, int y); // generic for 2 matrix devices (8x16)
+    void render_scene(); // renders the scene (the projectile and the players' platforms)
 };
 
 #endif
